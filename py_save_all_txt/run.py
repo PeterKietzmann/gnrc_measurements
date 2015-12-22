@@ -4,7 +4,7 @@ import os, signal, sys, subprocess, serial, time
 from pexpect import spawn, TIMEOUT, EOF
 
 ###################### SET PARAMETERTS ######################
-NUM_PACKETS = 1000;
+NUM_PACKETS = 2000;
 MIN_PACKET_SIZE = 10;
 MAX_PACKET_SIZE = 1211;
 STEP_SIZE = 100;
