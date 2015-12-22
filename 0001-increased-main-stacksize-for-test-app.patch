@@ -1,0 +1,25 @@
+From 01872f7f65a3426027bd61690d8cf42de575e37f Mon Sep 17 00:00:00 2001
+From: PeterKietzmann <peter.kietzmann@haw-hamburg.de>
+Date: Wed, 2 Dec 2015 11:00:11 +0100
+Subject: [PATCH 1/1] increased main stacksize for test app
+
+---
+ core/kernel_init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/kernel_init.c b/core/kernel_init.c
+index b89e1ad..77fb910 100644
+--- a/core/kernel_init.c
++++ b/core/kernel_init.c
+@@ -86,7 +86,7 @@ static void *idle_thread(void *arg)
+ const char *main_name = "main";
+ const char *idle_name = "idle";
+ 
+-static char main_stack[THREAD_STACKSIZE_MAIN];
++static char main_stack[THREAD_STACKSIZE_MAIN + 4096];
+ static char idle_stack[THREAD_STACKSIZE_IDLE];
+ 
+ void kernel_init(void)
+-- 
+1.9.1
+
