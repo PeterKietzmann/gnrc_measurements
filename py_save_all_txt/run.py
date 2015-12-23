@@ -4,10 +4,10 @@ import os, signal, sys, subprocess, serial, time
 from pexpect import spawn, TIMEOUT, EOF
 
 ###################### SET PARAMETERTS ######################
-NUM_PACKETS = 2000;
+NUM_PACKETS = 1000;
 MIN_PACKET_SIZE = 10;
 MAX_PACKET_SIZE = 1211;
-STEP_SIZE = 100;
+STEP_SIZE = 10;
 
 DELAY_PACKET_US = 0;
 DELAY_SIZE_US = 0;
@@ -24,7 +24,7 @@ else:
 ###################### xxxxxxxxxxxxxx ######################
 
 subprocess.call(['rm py_config.txt'], shell=True)
-text_config = open("py_config.txt", "w")
+text_config = open('py_config_'+str(NUM_PACKETS)+'.txt', "w")
 
 # write experiment configuration to text file
 text_config.write('NUM_PACKETS '+str(NUM_PACKETS)+'\n')
@@ -48,15 +48,16 @@ print 'BOARD = ', BOARD
 #print 'LOOPBACK_MODE = ', LOOPBACK_MODE
 
 
-subprocess.call(['rm ip_all.txt'], shell=True)
-subprocess.call(['rm ip_mean.txt'], shell=True)
-subprocess.call(['rm ip_mean_inc.txt'], shell=True)
-subprocess.call(['rm l2_all.txt'], shell=True)
-subprocess.call(['rm l2_mean.txt'], shell=True)
-subprocess.call(['rm l2_mean_inc.txt'], shell=True)
+subprocess.call(['rm ip_all_'+str(NUM_PACKETS)+'.txt'], shell=True)
+subprocess.call(['rm ip_mean_'+str(NUM_PACKETS)+'.txt'], shell=True)
+subprocess.call(['rm ip_mean_inc_'+str(NUM_PACKETS)+'.txt'], shell=True)
+subprocess.call(['rm l2_all_'+str(NUM_PACKETS)+'.txt'], shell=True)
+subprocess.call(['rm l2_mean_'+str(NUM_PACKETS)+'.txt'], shell=True)
+subprocess.call(['rm l2_mean_inc_'+str(NUM_PACKETS)+'.txt'], shell=True)
 
-text_files = [open("l2_all.txt", "a"), open("l2_mean.txt", "a"), open("l2_mean_inc.txt", "a"), 
-			open("ip_all.txt", "a"), open("ip_mean.txt", "a"), open("ip_mean_inc.txt", "a")];
+text_files = [open('l2_all_'+str(NUM_PACKETS)+'.txt', "a"), open('l2_mean_'+str(NUM_PACKETS)+'.txt', "a"), 
+			open('l2_mean_inc_'+str(NUM_PACKETS)+'.txt', "a"), open('ip_all_'+str(NUM_PACKETS)+'.txt', "a"), 
+			open('ip_mean_'+str(NUM_PACKETS)+'.txt', "a"), open('ip_mean_inc_'+str(NUM_PACKETS)+'.txt', "a")];
 
 
 if BOARD == 'native':

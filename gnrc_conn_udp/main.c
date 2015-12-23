@@ -83,7 +83,7 @@ static msg_t server_msg_queue[SERVER_MSG_QUEUE_SIZE];
 
 /* Measurement stuff MEAN_MODE = 0: Measure each packet and save value
  *                             = 1: Measure all packets and save value
- *                             = 2: Measure eacht each packet but increment all
+ *                             = 2: Measure each packet but increment all
  */
 #if MEASURE_MEAN == 0
 static uint32_t buffer_measurement[NUM_PACKETS];
