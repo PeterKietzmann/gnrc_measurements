@@ -297,6 +297,8 @@ int main(void)
         return 1;
     }
 
+    puts("START");
+
     for(unsigned int j = MIN_PACKET_SIZE; j < MAX_PACKET_SIZE; j+=STEP_SIZE) {
 #if MEASURE_MEAN == 1
         DEBUG("Packet size: %i and static_idx= %i\n", j, static_idx);
