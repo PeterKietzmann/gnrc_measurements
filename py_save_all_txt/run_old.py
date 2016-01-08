@@ -12,8 +12,8 @@ STEP_SIZE = 10;
 DELAY_PACKET_US = 0;
 DELAY_SIZE_US = 0;
 
-BOARD='native';
-#BOARD='iotlab-m3';
+#BOARD='native';
+BOARD='iotlab-m3';
 if BOARD == 'native':
 	board_switch = 0
 else:
@@ -23,8 +23,8 @@ else:
 
 ###################### xxxxxxxxxxxxxx ######################
 
-subprocess.call(['rm py_config_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-text_config = open('py_config_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "w")
+subprocess.call(['rm py_config.txt'], shell=True)
+text_config = open('py_config_'+str(NUM_PACKETS)+'.txt', "w")
 
 # write experiment configuration to text file
 text_config.write('NUM_PACKETS '+str(NUM_PACKETS)+'\n')
@@ -33,7 +33,7 @@ text_config.write('MAX_PACKET_SIZE '+str(MAX_PACKET_SIZE)+'\n')
 text_config.write('STEP_SIZE '+str(STEP_SIZE)+'\n')
 text_config.write('DELAY_PACKET_US '+str(DELAY_PACKET_US)+'\n')
 text_config.write('DELAY_SIZE_US '+str(DELAY_SIZE_US)+'\n')
-#text_config.write('BOARD '+str(board_switch)+' \n')
+text_config.write('BOARD '+str(board_switch)+' \n')
 #text_config.write('LOOPBACK_MODE '+str(LOOPBACK_MODE)+' \n')
 
 text_config.close()
@@ -48,23 +48,20 @@ print 'BOARD = ', BOARD
 #print 'LOOPBACK_MODE = ', LOOPBACK_MODE
 
 
-subprocess.call(['rm ip_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-subprocess.call(['rm ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-subprocess.call(['rm ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-subprocess.call(['rm l2_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-subprocess.call(['rm l2_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-subprocess.call(['rm l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
+subprocess.call(['rm ip_all_'+str(NUM_PACKETS)+'.txt'], shell=True)
+subprocess.call(['rm ip_mean_'+str(NUM_PACKETS)+'.txt'], shell=True)
+subprocess.call(['rm ip_mean_inc_'+str(NUM_PACKETS)+'.txt'], shell=True)
+subprocess.call(['rm l2_all_'+str(NUM_PACKETS)+'.txt'], shell=True)
+subprocess.call(['rm l2_mean_'+str(NUM_PACKETS)+'.txt'], shell=True)
+subprocess.call(['rm l2_mean_inc_'+str(NUM_PACKETS)+'.txt'], shell=True)
 
-text_files = [open('l2_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open('l2_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), 
-			open('l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open('ip_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), 
-			open('ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open('ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a")];
+text_files = [open('l2_all_'+str(NUM_PACKETS)+'.txt', "a"), open('l2_mean_'+str(NUM_PACKETS)+'.txt', "a"), 
+			open('l2_mean_inc_'+str(NUM_PACKETS)+'.txt', "a"), open('ip_all_'+str(NUM_PACKETS)+'.txt', "a"), 
+			open('ip_mean_'+str(NUM_PACKETS)+'.txt', "a"), open('ip_mean_inc_'+str(NUM_PACKETS)+'.txt', "a")];
 
 
 if BOARD == 'native':
-	native_elf_vec = [];
-	native_elf_vec.append("/home/kietzmann/Dokumente/RIOT_gnrc_measurements/experiments/posix_udp/bin/native/posix_udp.elf");
-	native_elf_vec.append("/home/kietzmann/Dokumente/RIOT_gnrc_measurements/experiments/gnrc_conn_udp/bin/native/gnrc_conn_udp.elf");
-	native_elf_vec.append("/home/kietzmann/Dokumente/RIOT_gnrc_measurements/experiments/plain_udp/bin/native/plain_udp.elf");
+	port = sys.stdin
 else:
 	# Open serial port
 	port = serial.Serial(
@@ -80,6 +77,8 @@ else:
 	time.sleep(1)
 	port.close()
 
+
+if BOARD == 'iotlab-m3':
 	try: 
 		port.open()
 
@@ -89,10 +88,14 @@ else:
 
 		exit()
 
+
+print "Successfully opened port"
+
 path_vec = [];
 path_vec.append("/home/kietzmann/Dokumente/RIOT_gnrc_measurements/experiments/posix_udp");
 path_vec.append("/home/kietzmann/Dokumente/RIOT_gnrc_measurements/experiments/gnrc_conn_udp");
 path_vec.append("/home/kietzmann/Dokumente/RIOT_gnrc_measurements/experiments/plain_udp");
+
 
 in_run = False
 
@@ -122,35 +125,34 @@ for k in range(0,2): # loopback modes ip and l2
 			subprocess.check_call(["make"], env=myenv)
 
 			if BOARD == 'native':
-				myproc = subprocess.Popen(native_elf_vec[x], stdout=subprocess.PIPE)
+				print 'now make the term\n'
+				#signal.signal(signal.SIGUSR1, handler)
+				#signal.alarm(2)
+				#subprocess.call(['BOARD=native make term'], shell=True)
 
 			else:
 				# Flash to MCU by interactiong with shell
 				subprocess.call(['make flash'], shell=True)
 
 
-			while(1):
-				if BOARD == 'iotlab-m3':
-					c = port.readline().strip()
-				else:
-					c = myproc.stdout.readline().strip()
+			print 'waiting for main and then continue'
 
-				if c != 'DONE' and in_run:
+
+			if port.readline(4) == 'main':
+				port.readline()
+				in_run = True
+
+			while (in_run):
+				c = port.readline()
+
+				if c != 'DONE\n':
 					print(c)
-					text_files[(y +(k*3))].write(c+'\n')
-
-				if c == 'START':
-					in_run = True
-
-				if c == 'DONE':
+					text_files[(y +(k*3))].write(c)
+				else:
 					print 'finished run'
 					in_run = False
 					text_files[(y +(k*3))].write('\n')
-					break
 			# !in_run
-			if BOARD == 'native':
-				myproc.kill()
-
 		print 'end  3 progs'
 
 		time.sleep(1)
@@ -158,9 +160,7 @@ for k in range(0,2): # loopback modes ip and l2
 	print 'end 3 modes'
 print 'end two loopback modes'
 
-if BOARD == 'iotlab-m3':
-	port.close();    # Just call this in the last iteration!
-
+port.close();    # Just call this in the last iteration!
 text_files[0].close()# Just call this in the last iteration!
 text_files[1].close()
 text_files[2].close()
