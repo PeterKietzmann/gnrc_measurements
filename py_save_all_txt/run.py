@@ -59,12 +59,12 @@ text_files = [open('l2_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open('l2_m
 			open('l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open('ip_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), 
 			open('ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open('ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a")];
 
-
+os.chdir("../")
 if BOARD == 'native':
 	native_elf_vec = [];
-	native_elf_vec.append("/home/kietzmann/Dokumente/RIOT_gnrc_measurements/experiments/posix_udp/bin/native/posix_udp.elf");
-	native_elf_vec.append("/home/kietzmann/Dokumente/RIOT_gnrc_measurements/experiments/gnrc_conn_udp/bin/native/gnrc_conn_udp.elf");
-	native_elf_vec.append("/home/kietzmann/Dokumente/RIOT_gnrc_measurements/experiments/plain_udp/bin/native/plain_udp.elf");
+	native_elf_vec.append(os.getcwd()+"/posix_udp/bin/native/posix_udp.elf");
+	native_elf_vec.append(os.getcwd()+"/gnrc_conn_udp/bin/native/gnrc_conn_udp.elf");
+	native_elf_vec.append(os.getcwd()+"/plain_udp/bin/native/plain_udp.elf");
 else:
 	# Open serial port
 	port = serial.Serial(
@@ -90,9 +90,9 @@ else:
 		exit()
 
 path_vec = [];
-path_vec.append("/home/kietzmann/Dokumente/RIOT_gnrc_measurements/experiments/posix_udp");
-path_vec.append("/home/kietzmann/Dokumente/RIOT_gnrc_measurements/experiments/gnrc_conn_udp");
-path_vec.append("/home/kietzmann/Dokumente/RIOT_gnrc_measurements/experiments/plain_udp");
+path_vec.append(os.getcwd()+"/posix_udp");
+path_vec.append(os.getcwd()+"/gnrc_conn_udp");
+path_vec.append(os.getcwd()+"/plain_udp");
 
 in_run = False
 
