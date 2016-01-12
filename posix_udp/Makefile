@@ -42,7 +42,7 @@ QUIET ?= 1
 
 include $(RIOTBASE)/Makefile.include
 
-ifneq (,$(LOOPBACK_MODE))
+ifeq (,$(LOOPBACK_MODE))
 # 0: L2 reflector mode, 1: IPv6 Loopback mode
 LOOPBACK_MODE ?= 1
 export CFLAGS += -DLOOPBACK_MODE=$(LOOPBACK_MODE)
