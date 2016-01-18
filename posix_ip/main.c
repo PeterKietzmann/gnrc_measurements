@@ -29,7 +29,6 @@
 #include <unistd.h>
 
 #include "net/gnrc/ipv6.h"
-#include "net/gnrc/udp.h"
 #include "net/ipv6/addr.h"
 
 #include "kernel_types.h"
@@ -40,13 +39,13 @@
 #include "debug.h"
 
 #ifndef NUM_PACKETS
-#define NUM_PACKETS         (5)
+#define NUM_PACKETS         (10000)
 #endif
 #ifndef MIN_PACKET_SIZE
 #define MIN_PACKET_SIZE     (10)
 #endif
 #ifndef MAX_PACKET_SIZE
-#define MAX_PACKET_SIZE     (21)
+#define MAX_PACKET_SIZE     (1221)
 #endif
 #ifndef STEP_SIZE
 #define STEP_SIZE           (10)
@@ -58,13 +57,10 @@
 #define DELAY_SIZE_US       (0)
 #endif
 #ifndef MEASURE_MEAN
-#define MEASURE_MEAN        (0)
+#define MEASURE_MEAN        (2)
 #endif
 
 #define DONT_PRINT_DATA     (0)
-
-
-#define UDP_PORT                            (9)
 
 #define SERVER_MSG_QUEUE_SIZE               (8)
 
@@ -111,7 +107,7 @@ static void *_server_thread(void *args)
 
     server_addr.sin6_family = AF_INET6;
     memset(&server_addr.sin6_addr, 0, sizeof(server_addr.sin6_addr));
-//////////server_addr.sin6_port = htons(UDP_PORT);
+
     if (server_socket < 0) {
         DEBUG("error initializing socket");
         server_socket = 0;
@@ -286,9 +282,6 @@ int main(void)
 #endif
 
     /* parse port */
-////    port = UDP_PORT;
-////    dst.sin6_port = htons(port);
-////    src.sin6_port = htons(port);
     s = socket(AF_INET6, SOCK_RAW, 0);
     if (s < 0) {
         DEBUG("error initializing socket");
