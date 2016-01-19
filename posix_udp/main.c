@@ -40,16 +40,16 @@
 #include "debug.h"
 
 #ifndef NUM_PACKETS
-#define NUM_PACKETS         (100)
+#define NUM_PACKETS         (1000)
 #endif
 #ifndef MIN_PACKET_SIZE
-#define MIN_PACKET_SIZE     (800)
+#define MIN_PACKET_SIZE     (10)
 #endif
 #ifndef MAX_PACKET_SIZE
-#define MAX_PACKET_SIZE     (801)
+#define MAX_PACKET_SIZE     (1211)
 #endif
 #ifndef STEP_SIZE
-#define STEP_SIZE           (100)
+#define STEP_SIZE           (10)
 #endif
 #ifndef DELAY_PACKET_US
 #define DELAY_PACKET_US     (0)
@@ -58,7 +58,7 @@
 #define DELAY_SIZE_US       (0)
 #endif
 #ifndef MEASURE_MEAN
-#define MEASURE_MEAN       (2)
+#define MEASURE_MEAN       (0)
 #endif
 
 #define DONT_PRINT_DATA     (0)
@@ -68,7 +68,7 @@
 
 #define SERVER_MSG_QUEUE_SIZE               (8)
 
-#define SERVER_BUFFER_SIZE                  (MAX_PACKET_SIZE + 100)
+#define SERVER_BUFFER_SIZE                  (MAX_PACKET_SIZE)
 
 #define SC_NETIF_IPV6_DEFAULT_PREFIX_LEN    (64)
 
@@ -190,45 +190,34 @@ int main(void)
 {
     DEBUG("%i iterations for packets with payloads %i:%i:%i\n ", NUM_PACKETS, MIN_PACKET_SIZE, STEP_SIZE, MAX_PACKET_SIZE);
     DEBUG("Delay between to sizes: %i us; Delay between two packets: %i us\n", DELAY_SIZE_US, DELAY_PACKET_US);
-
+    DEBUG("posix_udp; MEASURE_MEAN: %i , LOOPBACK_MODE: %i\n",MEASURE_MEAN, LOOPBACK_MODE);
+    
     udp_start_server();
+
+    struct sockaddr_in6 src, dst;
+    uint16_t port;
+    int s;
+
+    ipv6_addr_t addr;
+    kernel_pid_t ifs[GNRC_NETIF_NUMOF];
+    
+    src.sin6_family = AF_INET6;
+    dst.sin6_family = AF_INET6;
+    
 
     char data[MAX_PACKET_SIZE];
     for (int i = 0; i < MAX_PACKET_SIZE; i++) {
         data[i] = i;
     }
 
-    kernel_pid_t ifs[GNRC_NETIF_NUMOF];
-    gnrc_netif_get(ifs);
-
-    struct sockaddr_in6 src, dst;
-    uint16_t port;
-    int s;
-    src.sin6_family = AF_INET6;
-    dst.sin6_family = AF_INET6;
     memset(&src.sin6_addr, 0, sizeof(src.sin6_addr));
-
-#if !LOOPBACK_MODE
-   DEBUG("This is L2 loopback mode\n");
-
-    ipv6_addr_t addr, dest_addr;
-    gnrc_ipv6_nc_t *nc_entry = NULL;
-
 
     /* set global unicast SOURCE  address */
     //char addr_str[] = "fe80::3432:4833:46d9:8a13";
     char addr_str[]= "2001:cafe:0000:0002:0222:64af:126b:8a14";
 
-    /* set global unicast DESTINATION  address */
-    char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a14";
-    //char dst_addr_str[] = "fe80::3432:4833:46d9:8a13";
-    //char dst_addr_str[] = "::1";
 
-    /* set hhardware address of receiver */
-    //uint8_t hwaddr[2] = {0x8a, 0x14};
-    uint8_t hwaddr[8] = {0x10, 0x22, 0x64, 0xaf, 0x12, 0x6b, 0x8a, 0x14};
-    //int8_t hwaddr[8] = {0x5a, 0x5a, 0x50, 0x6b, 0x51, 0x7e, 0x00, 0xd2};
-
+    gnrc_netif_get(ifs);
 
     /* reset address on interface */
     gnrc_ipv6_netif_reset_addr(ifs[0]);
@@ -237,9 +226,23 @@ int main(void)
         DEBUG("error: unable to parse IPv6 address.");
         return 1;
     }
+
     if (gnrc_ipv6_netif_add_addr(ifs[0], &addr, SC_NETIF_IPV6_DEFAULT_PREFIX_LEN, false) == NULL) {
         DEBUG("Error: unable to add IPv6 address");
     }
+#if !LOOPBACK_MODE
+
+    ipv6_addr_t dest_addr;
+    gnrc_ipv6_nc_t *nc_entry = NULL;
+
+    /* set global unicast DESTINATION  address */
+    char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a14";
+    //char dst_addr_str[] = "fe80::3432:4833:46d9:8a13";
+
+    /* set hhardware address of receiver */
+    //uint8_t hwaddr[2] = {0x8a, 0x14};
+    uint8_t hwaddr[8] = {0x10, 0x22, 0x64, 0xaf, 0x12, 0x6b, 0x8a, 0x14};
+    //int8_t hwaddr[8] = {0x5a, 0x5a, 0x50, 0x6b, 0x51, 0x7e, 0x00, 0xd2};
 
     if (ipv6_addr_from_str(&dest_addr, dst_addr_str) == NULL) {
         DEBUG("error: unable to parse IPv6 address.");
