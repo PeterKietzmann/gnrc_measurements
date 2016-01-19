@@ -179,6 +179,7 @@ int main(void)
 {
     DEBUG("%i iterations for packets with payloads %i:%i:%i\n ", NUM_PACKETS, MIN_PACKET_SIZE, STEP_SIZE, MAX_PACKET_SIZE);
     DEBUG("Delay between to sizes: %i us; Delay between two packets: %i us\n", DELAY_SIZE_US, DELAY_PACKET_US);
+    DEBUG("conn_ip; MEASURE_MEAN: %i , LOOPBACK_MODE: %i\n",MEASURE_MEAN, LOOPBACK_MODE);
 
     ip_start_server();
 
@@ -187,30 +188,15 @@ int main(void)
         data[i] = i;
     }
 
+    ipv6_addr_t addr;
+
     kernel_pid_t ifs[GNRC_NETIF_NUMOF];
-    gnrc_netif_get(ifs);
-
-#if !LOOPBACK_MODE
-    DEBUG("This is L2 loopback mode\n");
-
-    ipv6_addr_t addr, dest_addr;
-    gnrc_ipv6_nc_t *nc_entry = NULL;
-
 
     /* set global unicast SOURCE  address */
     //char addr_str[] = "fe80::3432:4833:46d9:8a13";
     char addr_str[]= "2001:cafe:0000:0002:0222:64af:126b:8a14";
 
-    /* set global unicast DESTINATION  address */
-    char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a14";
-    //char dst_addr_str[] = "fe80::3432:4833:46d9:8a13";
-    //char dst_addr_str[] = "::1";
-
-    /* set hhardware address of receiver */
-    //uint8_t hwaddr[2] = {0x8a, 0x14};
-    uint8_t hwaddr[8] = {0x10, 0x22, 0x64, 0xaf, 0x12, 0x6b, 0x8a, 0x14};
-    //int8_t hwaddr[8] = {0x5a, 0x5a, 0x50, 0x6b, 0x51, 0x7e, 0x00, 0xd2};
-
+    gnrc_netif_get(ifs);
 
     /* reset address on interface */
     gnrc_ipv6_netif_reset_addr(ifs[0]);
@@ -222,6 +208,18 @@ int main(void)
     if (gnrc_ipv6_netif_add_addr(ifs[0], &addr, SC_NETIF_IPV6_DEFAULT_PREFIX_LEN, false) == NULL) {
         DEBUG("Error: unable to add IPv6 address");
     }
+#if !LOOPBACK_MODE
+
+    ipv6_addr_t dest_addr;
+    gnrc_ipv6_nc_t *nc_entry = NULL;
+
+    /* set global unicast DESTINATION  address */
+    char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a14";
+    //char dst_addr_str[] = "fe80::3432:4833:46d9:8a13";
+
+    /* set hhardware address of receiver */
+    //uint8_t hwaddr[2] = {0x8a, 0x14};
+    uint8_t hwaddr[8] = {0x10, 0x22, 0x64, 0xaf, 0x12, 0x6b, 0x8a, 0x14};
 
     if (ipv6_addr_from_str(&dest_addr, dst_addr_str) == NULL) {
         DEBUG("error: unable to parse IPv6 address.");
@@ -245,7 +243,7 @@ int main(void)
     char dst_addr_str[] = "::1";
     ipv6_addr_t dest_addr;
 
-    ipv6_addr_t addr = IPV6_ADDR_UNSPECIFIED;
+    //ipv6_addr_t addr = IPV6_ADDR_UNSPECIFIED;
 
     if (ipv6_addr_from_str(&dest_addr, dst_addr_str) == NULL) {
         DEBUG("error: unable to parse IPv6 address.");
