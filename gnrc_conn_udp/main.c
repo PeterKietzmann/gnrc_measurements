@@ -41,13 +41,13 @@
 #include "debug.h"
 
 #ifndef NUM_PACKETS
-#define NUM_PACKETS         (10)
+#define NUM_PACKETS         (3)
 #endif
 #ifndef MIN_PACKET_SIZE
 #define MIN_PACKET_SIZE     (10)
 #endif
 #ifndef MAX_PACKET_SIZE
-#define MAX_PACKET_SIZE     (1001)
+#define MAX_PACKET_SIZE     (11)
 #endif
 #ifndef STEP_SIZE
 #define STEP_SIZE           (10)
@@ -264,6 +264,8 @@ int main(void)
                             sizeof(num_retrans));
 */
 
+    //conn_udp_getlocaladdr(&conn, &src, &sport); // should i get the addy like in here?
+
     puts("START");
 
     for(unsigned int j = MIN_PACKET_SIZE; j < MAX_PACKET_SIZE; j+=STEP_SIZE) {
@@ -277,7 +279,7 @@ int main(void)
             static_idx++;
             start_time = xtimer_now();
 #endif
-            conn_udp_sendto(&data, j, &addr, sizeof(addr),(struct sockaddr *)&dest_addr, sizeof(dest_addr), 
+            conn_udp_sendto(&data, j, NULL, 0,(struct sockaddr *)&dest_addr, sizeof(dest_addr), 
                 AF_INET6, UDP_PORT, UDP_PORT);
 #if DELAY_PACKET_US
             xtimer_usleep(DELAY_PACKET_US);

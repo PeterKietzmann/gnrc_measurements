@@ -39,7 +39,7 @@
 #include "debug.h"
 
 #ifndef NUM_PACKETS
-#define NUM_PACKETS         (1)
+#define NUM_PACKETS         (3)
 #endif
 #ifndef MIN_PACKET_SIZE
 #define MIN_PACKET_SIZE     (10)
@@ -270,7 +270,7 @@ int main(void)
             static_idx++;
             start_time = xtimer_now();
 #endif
-            conn_ip_sendto(&data, j, &addr, sizeof(addr),(struct sockaddr *)&dest_addr, sizeof(dest_addr), 
+            conn_ip_sendto(&data, j, NULL, 0,(struct sockaddr *)&dest_addr, sizeof(dest_addr), 
                 AF_INET6, GNRC_NETTYPE_UNDEF);
 #if DELAY_PACKET_US
             xtimer_usleep(DELAY_PACKET_US);

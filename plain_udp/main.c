@@ -34,13 +34,13 @@
 #include "debug.h"
 
 #ifndef NUM_PACKETS
-#define NUM_PACKETS         (10)
+#define NUM_PACKETS         (2)
 #endif
 #ifndef MIN_PACKET_SIZE
-#define MIN_PACKET_SIZE     (100)
+#define MIN_PACKET_SIZE     (10)
 #endif
 #ifndef MAX_PACKET_SIZE
-#define MAX_PACKET_SIZE     (1001)
+#define MAX_PACKET_SIZE     (11)
 #endif
 #ifndef STEP_SIZE
 #define STEP_SIZE           (100)
