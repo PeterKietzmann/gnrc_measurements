@@ -4,23 +4,23 @@ import os, signal, sys, subprocess, serial, time
 from pexpect import spawn, TIMEOUT, EOF
 
 ###################### SET PARAMETERTS ######################
-NUM_PACKETS = 1;
+NUM_PACKETS = 1000;
 MIN_PACKET_SIZE = 10;
-MAX_PACKET_SIZE = 11;
+MAX_PACKET_SIZE = 1211;
 STEP_SIZE = 10;
 
 DELAY_PACKET_US = 0;
 DELAY_SIZE_US = 0;
 
-BOARD='native';
-#BOARD='iotlab-m3';
+#BOARD='native';
+BOARD='iotlab-m3';
 if BOARD == 'native':
 	board_switch = 0
 else:
 	board_switch = 1
 
 
-API_layer_mode = 'both'; # udp: just run UDP layer simulations
+API_layer_mode = 'udp'; # udp: just run UDP layer simulations
 						# ip:  just run  IP layer simulations
 						# both: run  both
 
@@ -193,18 +193,24 @@ for k in range(0,2): # loopback modes ip and l2
 
 				if c == 'START':
 					in_run = True
-					string = print_loopback_mode[k]+' '+print_mean_mode[y]+' '+path_vec[x]+'\n'
-					#text_files[(y +(k*3))+switch_API_udp_ip].write(string) #
+					# string = print_loopback_mode[k]+' '+print_mean_mode[y]+' '+path_vec[x]+'\n'
+					# text_files[(y +(k*3))+switch_API_udp_ip].write(string) #
 
 				if c == 'DONE':
 					print 'Finished run'
 					in_run = False
 					text_files[(y +(k*3))+switch_API_udp_ip].write('\n')
 					break
+
+				# else:
+				# 	print c
+				# 	text_files[(y +(k*3))+switch_API_udp_ip].write(c+'\n')
+
 			# !in_run
 			if BOARD == 'native':
 				myproc.kill()
 
+			time.sleep(1)
 
 if BOARD == 'iotlab-m3':
 	port.close();    # Just call this in the last iteration!
