@@ -64,7 +64,7 @@
 
 #define SERVER_MSG_QUEUE_SIZE               (8)
 
-#define SERVER_BUFFER_SIZE                  (MAX_PACKET_SIZE + 100)
+#define SERVER_BUFFER_SIZE                  (MAX_PACKET_SIZE)
 
 #define SC_NETIF_IPV6_DEFAULT_PREFIX_LEN    (64)
 
@@ -223,7 +223,7 @@ int main(void)
     }
 #if !LOOPBACK_MODE
 
-    ipv6_addr_t addr, dest_addr;
+    ipv6_addr_t dest_addr;
     gnrc_ipv6_nc_t *nc_entry = NULL;
 
     /* set global unicast DESTINATION  address */
