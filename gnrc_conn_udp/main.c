@@ -194,11 +194,10 @@ int main(void)
     for (int i = 0; i < MAX_PACKET_SIZE; i++) {
         data[i] = i;
     }
+#if !LOOPBACK_MODE
 
     ipv6_addr_t addr;
-
     kernel_pid_t ifs[GNRC_NETIF_NUMOF];
-
 
     /* set global unicast SOURCE  address */
     //char addr_str[] = "fe80::3432:4833:46d9:8a13";
@@ -216,7 +215,6 @@ int main(void)
     if (gnrc_ipv6_netif_add_addr(ifs[0], &addr, SC_NETIF_IPV6_DEFAULT_PREFIX_LEN, false) == NULL) {
         DEBUG("Error: unable to add IPv6 address");
     }
-#if !LOOPBACK_MODE
 
     ipv6_addr_t dest_addr;
     gnrc_ipv6_nc_t *nc_entry = NULL;
@@ -255,6 +253,7 @@ int main(void)
         DEBUG("error: unable to parse IPv6 address.");
         return 1;
     }
+
 
 #endif
 /*

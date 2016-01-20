@@ -198,9 +198,6 @@ int main(void)
     uint16_t port;
     int s;
 
-    ipv6_addr_t addr;
-    kernel_pid_t ifs[GNRC_NETIF_NUMOF];
-    
     src.sin6_family = AF_INET6;
     dst.sin6_family = AF_INET6;
     
@@ -212,10 +209,17 @@ int main(void)
 
     memset(&src.sin6_addr, 0, sizeof(src.sin6_addr));
 
+#if !LOOPBACK_MODE
+
+    ipv6_addr_t addr;
+    kernel_pid_t ifs[GNRC_NETIF_NUMOF];
+
+    ipv6_addr_t dest_addr;
+    gnrc_ipv6_nc_t *nc_entry = NULL;
+
     /* set global unicast SOURCE  address */
     //char addr_str[] = "fe80::3432:4833:46d9:8a13";
     char addr_str[]= "2001:cafe:0000:0002:0222:64af:126b:8a14";
-
 
     gnrc_netif_get(ifs);
 
@@ -230,10 +234,6 @@ int main(void)
     if (gnrc_ipv6_netif_add_addr(ifs[0], &addr, SC_NETIF_IPV6_DEFAULT_PREFIX_LEN, false) == NULL) {
         DEBUG("Error: unable to add IPv6 address");
     }
-#if !LOOPBACK_MODE
-
-    ipv6_addr_t dest_addr;
-    gnrc_ipv6_nc_t *nc_entry = NULL;
 
     /* set global unicast DESTINATION  address */
     char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a14";

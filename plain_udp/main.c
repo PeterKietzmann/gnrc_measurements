@@ -265,7 +265,6 @@ int main(void)
     for (int i = 0; i < MAX_PACKET_SIZE; i++) {
         data[i] = i;
     }
-    ipv6_addr_t addr;
 
     uint8_t port[2];
     port[0] = UDP_PORT;
@@ -274,7 +273,11 @@ int main(void)
     gnrc_pktsnip_t *payload, *udp, *ip;
     gnrc_netreg_entry_t *sendto;
 
+#if !LOOPBACK_MODE
+
     kernel_pid_t ifs[GNRC_NETIF_NUMOF];
+    ipv6_addr_t src_addr, dest_addr;
+    gnrc_ipv6_nc_t *nc_entry = NULL;
 
     /* set global unicast SOURCE  address */
     //char addr_str[] = "fe80::3432:4833:46d9:8a13";
@@ -285,18 +288,13 @@ int main(void)
     /* reset address on interface */
     gnrc_ipv6_netif_reset_addr(ifs[0]);
 
-    if (ipv6_addr_from_str(&addr, addr_str) == NULL) {
+    if (ipv6_addr_from_str(&src_addr, addr_str) == NULL) {
         DEBUG("error: unable to parse IPv6 address.");
         return 1;
     }
-    if (gnrc_ipv6_netif_add_addr(ifs[0], &addr, SC_NETIF_IPV6_DEFAULT_PREFIX_LEN, false) == NULL) {
+    if (gnrc_ipv6_netif_add_addr(ifs[0], &src_addr, SC_NETIF_IPV6_DEFAULT_PREFIX_LEN, false) == NULL) {
         DEBUG("Error: unable to add IPv6 address");
     }
-    
-#if !LOOPBACK_MODE
-
-    ipv6_addr_t dest_addr;
-    gnrc_ipv6_nc_t *nc_entry = NULL;
 
     /* set global unicast DESTINATION  address */
     char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a14";
