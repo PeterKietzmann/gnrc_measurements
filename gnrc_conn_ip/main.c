@@ -42,10 +42,10 @@
 #define NUM_PACKETS         (3)
 #endif
 #ifndef MIN_PACKET_SIZE
-#define MIN_PACKET_SIZE     (10)
+#define MIN_PACKET_SIZE     (50)
 #endif
 #ifndef MAX_PACKET_SIZE
-#define MAX_PACKET_SIZE     (11)
+#define MAX_PACKET_SIZE     (501)
 #endif
 #ifndef STEP_SIZE
 #define STEP_SIZE           (10)
@@ -188,9 +188,12 @@ int main(void)
         data[i] = i;
     }
 
-    ipv6_addr_t addr;
+#if !LOOPBACK_MODE
 
+    ipv6_addr_t addr;
     kernel_pid_t ifs[GNRC_NETIF_NUMOF];
+    ipv6_addr_t dest_addr;
+    gnrc_ipv6_nc_t *nc_entry = NULL;
 
     /* set global unicast SOURCE  address */
     //char addr_str[] = "fe80::3432:4833:46d9:8a13";
@@ -208,10 +211,7 @@ int main(void)
     if (gnrc_ipv6_netif_add_addr(ifs[0], &addr, SC_NETIF_IPV6_DEFAULT_PREFIX_LEN, false) == NULL) {
         DEBUG("Error: unable to add IPv6 address");
     }
-#if !LOOPBACK_MODE
 
-    ipv6_addr_t dest_addr;
-    gnrc_ipv6_nc_t *nc_entry = NULL;
 
     /* set global unicast DESTINATION  address */
     char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a14";

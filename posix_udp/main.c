@@ -194,11 +194,11 @@ int main(void)
     
     udp_start_server();
 
-    struct sockaddr_in6 src, dst;
+    struct sockaddr_in6 dst;// src;
     uint16_t port;
     int s;
 
-    src.sin6_family = AF_INET6;
+    //src.sin6_family = AF_INET6;
     dst.sin6_family = AF_INET6;
     
 
@@ -207,7 +207,7 @@ int main(void)
         data[i] = i;
     }
 
-    memset(&src.sin6_addr, 0, sizeof(src.sin6_addr));
+    //memset(&src.sin6_addr, 0, sizeof(src.sin6_addr));
 
 #if !LOOPBACK_MODE
 
@@ -293,7 +293,7 @@ int main(void)
     /* parse port */
     port = UDP_PORT;
     dst.sin6_port = htons(port);
-    src.sin6_port = htons(port);
+    //src.sin6_port = htons(port);
     s = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
     if (s < 0) {
         DEBUG("error initializing socket");

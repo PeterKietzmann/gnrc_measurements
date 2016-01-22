@@ -103,7 +103,7 @@ static void *_server_thread(void *args)
 
     struct sockaddr_in6 server_addr;
     msg_init_queue(server_msg_queue, SERVER_MSG_QUEUE_SIZE);
-    server_socket = socket(AF_INET6, SOCK_RAW, 0);
+    server_socket = socket(AF_INET6, SOCK_RAW, GNRC_NETTYPE_UNDEF);
 
     server_addr.sin6_family = AF_INET6;
     memset(&server_addr.sin6_addr, 0, sizeof(server_addr.sin6_addr));
@@ -187,23 +187,26 @@ int main(void)
     DEBUG("posix_ip; MEASURE_MEAN: %i , LOOPBACK_MODE: %i\n",MEASURE_MEAN, LOOPBACK_MODE);
 
     udp_start_server();
-    
 
     char data[MAX_PACKET_SIZE];
     for (int i = 0; i < MAX_PACKET_SIZE; i++) {
         data[i] = i;
     }
 
-    kernel_pid_t ifs[GNRC_NETIF_NUMOF];
 
-    ipv6_addr_t addr;
-    struct sockaddr_in6 src, dst;
+    struct sockaddr_in6 dst;// src;
     int s;
-    src.sin6_family = AF_INET6;
+    //src.sin6_family = AF_INET6;
     dst.sin6_family = AF_INET6;
 
-    memset(&src.sin6_addr, 0, sizeof(src.sin6_addr));
+    //memset(&src.sin6_addr, 0, sizeof(src.sin6_addr));
 
+#if !LOOPBACK_MODE
+
+    ipv6_addr_t addr;
+    ipv6_addr_t dest_addr;
+    gnrc_ipv6_nc_t *nc_entry = NULL;
+    kernel_pid_t ifs[GNRC_NETIF_NUMOF];
 
     /* set global unicast SOURCE  address */
     //char addr_str[] = "fe80::3432:4833:46d9:8a13";
@@ -221,10 +224,7 @@ int main(void)
     if (gnrc_ipv6_netif_add_addr(ifs[0], &addr, SC_NETIF_IPV6_DEFAULT_PREFIX_LEN, false) == NULL) {
         DEBUG("Error: unable to add IPv6 address");
     }
-#if !LOOPBACK_MODE
 
-    ipv6_addr_t dest_addr;
-    gnrc_ipv6_nc_t *nc_entry = NULL;
 
     /* set global unicast DESTINATION  address */
     char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a14";
@@ -282,7 +282,7 @@ int main(void)
 #endif
 
     /* parse port */
-    s = socket(AF_INET6, SOCK_RAW, 0);
+    s = socket(AF_INET6, SOCK_RAW, GNRC_NETTYPE_UNDEF);
     if (s < 0) {
         DEBUG("error initializing socket");
         return 1;
