@@ -4,23 +4,24 @@ import os, signal, sys, subprocess, serial, time
 from pexpect import spawn, TIMEOUT, EOF
 
 ###################### SET PARAMETERTS ######################
-NUM_PACKETS = 1000;
+NUM_PACKETS = 1;
 MIN_PACKET_SIZE = 10;
-MAX_PACKET_SIZE = 1211;
+MAX_PACKET_SIZE = 11;
 STEP_SIZE = 10;
 
 DELAY_PACKET_US = 0;
 DELAY_SIZE_US = 0;
 
-#BOARD='native';
-BOARD='iotlab-m3';
+BOARD='native';
+#BOARD='samr21-xpro';
+#BOARD='iotlab-m3';
 if BOARD == 'native':
 	board_switch = 0
 else:
 	board_switch = 1
 
 
-API_layer_mode = 'udp'; # udp: just run UDP layer simulations
+API_layer_mode = 'both'; # udp: just run UDP layer simulations
 						# ip:  just run  IP layer simulations
 						# both: run  both
 
@@ -107,13 +108,21 @@ if BOARD == 'native':
 	native_elf_vec.append(os.getcwd()+"/gnrc_conn_ip/bin/native/gnrc_conn_ip.elf");
 	native_elf_vec.append(os.getcwd()+"/plain_ip/bin/native/plain_ip.elf");
 else:
-	# Open serial port
-	port = serial.Serial(
-		port='/dev/ttyUSB1',
-		baudrate=500000, 
-		dsrdtr=0, 
-		rtscts=0
-	)
+	if BOARD=='iotlab-m3':
+		# Open serial port
+		port = serial.Serial(
+			port='/dev/ttyUSB1',
+			baudrate=500000, 
+			dsrdtr=0, 
+			rtscts=0
+		)
+	if BOARD=='samr21-xpro':
+		port = serial.Serial(
+			port='/dev/ttyACM0',
+			baudrate=115200, 
+			dsrdtr=0, 
+			rtscts=0
+		)
 	port.setDTR(0)
 	port.setRTS(0)
 
@@ -140,7 +149,7 @@ print_mean_mode = ['single', 'conjoint', 'increment'];
 number_of_measurements = len(loopback_mode_vec) * len(measure_mean_vec) * len(path_vec)
 measurements_counter = 0;
 
-for k in range(0,2): # loopback modes ip and l2
+for k in range(0,len(loopback_mode_vec)): # loopback modes ip and l2
 	for y in range(0,3): # kinds of measurement regarding mean calculation
 
 		MEASURE_MEAN = measure_mean_vec[y]; # 0: Measure each packet and save value
@@ -179,10 +188,10 @@ for k in range(0,2): # loopback modes ip and l2
 
 			else:
 				# Flash to MCU by interactiong with shell
-				subprocess.call(['make flash'], shell=True)
+				subprocess.call(['make flash'], env=myenv, shell=True)
 
 			while(1):
-				if BOARD == 'iotlab-m3':
+				if BOARD != 'native':
 					c = port.readline().strip()
 				else:
 					c = myproc.stdout.readline().strip()
@@ -193,8 +202,8 @@ for k in range(0,2): # loopback modes ip and l2
 
 				if c == 'START':
 					in_run = True
-					# string = print_loopback_mode[k]+' '+print_mean_mode[y]+' '+path_vec[x]+'\n'
-					# text_files[(y +(k*3))+switch_API_udp_ip].write(string) #
+					#string = print_loopback_mode[k]+' '+print_mean_mode[y]+' '+path_vec[x]+'\n'
+					#text_files[(y +(k*3))+switch_API_udp_ip].write(string) #
 
 				if c == 'DONE':
 					print 'Finished run'
@@ -212,7 +221,7 @@ for k in range(0,2): # loopback modes ip and l2
 
 			time.sleep(1)
 
-if BOARD == 'iotlab-m3':
+if BOARD != 'native':
 	port.close();    # Just call this in the last iteration!
 
 for a in range (0, len(text_files)):
