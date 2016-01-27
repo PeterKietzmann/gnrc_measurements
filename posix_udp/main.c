@@ -40,13 +40,13 @@
 #include "debug.h"
 
 #ifndef NUM_PACKETS
-#define NUM_PACKETS         (3)
+#define NUM_PACKETS         (1000)
 #endif
 #ifndef MIN_PACKET_SIZE
 #define MIN_PACKET_SIZE     (10)
 #endif
 #ifndef MAX_PACKET_SIZE
-#define MAX_PACKET_SIZE     (11)
+#define MAX_PACKET_SIZE     (1211)
 #endif
 #ifndef STEP_SIZE
 #define STEP_SIZE           (10)
@@ -58,7 +58,7 @@
 #define DELAY_SIZE_US       (0)
 #endif
 #ifndef MEASURE_MEAN
-#define MEASURE_MEAN       (0)
+#define MEASURE_MEAN       (2)
 #endif
 
 #define DONT_PRINT_DATA     (0)
@@ -159,7 +159,7 @@ static void *_server_thread(void *args)
                     mean_increment = 0;
                 }
 #endif
-            DEBUG("Received data of size: %i, stop_time = %"PRIu32"\n", res, buffer_measurement[static_idx]);
+            DEBUG("Received data of size: %i\n", res);
             //puts(server_buffer);
         }
     }

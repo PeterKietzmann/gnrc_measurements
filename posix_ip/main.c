@@ -155,7 +155,7 @@ static void *_server_thread(void *args)
                     mean_increment = 0;
                 }
 #endif
-            DEBUG("Received data of size: %i, stop_time = %"PRIu32"\n", res, buffer_measurement[static_idx]);
+            DEBUG("Received data of size: %i\n", res);
             //puts(server_buffer);
         }
     }
