@@ -7,6 +7,7 @@ doc/doxygen/man
 doc/doxygen/*.log
 doc/doxygen/*.db
 doc/doxygen/*.tmp
+TEMP/*
 # Built binaries
 *bin
 # Backup files
