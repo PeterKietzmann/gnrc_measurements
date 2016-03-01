@@ -4,24 +4,32 @@ import os, signal, sys, subprocess, serial, time
 from pexpect import spawn, TIMEOUT, EOF
 
 ###################### SET PARAMETERTS ######################
-NUM_PACKETS = 1;
+NUM_PACKETS = 1000;
 MIN_PACKET_SIZE = 10;
-MAX_PACKET_SIZE = 11;
+MAX_PACKET_SIZE = 1211;
 STEP_SIZE = 10;
 
 DELAY_PACKET_US = 0;
 DELAY_SIZE_US = 0;
 
-BOARD='native';
+#BOARD='native';
 #BOARD='samr21-xpro';
-#BOARD='iotlab-m3';
+BOARD='iotlab-m3';
+#BOARD='nucleo-l1';
+#BOARD='stm32f4discovery';
+
+
+NAME_STRING_ADD = '_V2';
+#NAME_STRING_ADD = '';
+
+
 if BOARD == 'native':
 	board_switch = 0
 else:
 	board_switch = 1
 
 
-API_layer_mode = 'both'; # udp: just run UDP layer simulations
+API_layer_mode = 'udp'; # udp: just run UDP layer simulations
 						# ip:  just run  IP layer simulations
 						# both: run  both
 
@@ -29,7 +37,7 @@ API_layer_mode = 'both'; # udp: just run UDP layer simulations
 ###################### xxxxxxxxxxxxxx ######################
 
 subprocess.call(['rm py_config_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-text_config = open('py_config_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "w")
+text_config = open('py_config_'+str(NUM_PACKETS)+'_'+BOARD+ NAME_STRING_ADD+'.txt', "w")
 
 # write experiment configuration to text file
 text_config.write('NUM_PACKETS '+str(NUM_PACKETS)+'\n')
@@ -54,12 +62,12 @@ print 'BOARD = ', BOARD
 path_vec = [];
 
 if API_layer_mode =='udp' or API_layer_mode =='ip':
-	subprocess.call(['rm '+API_layer_mode+'_ip_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-	subprocess.call(['rm '+API_layer_mode+'_ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-	subprocess.call(['rm '+API_layer_mode+'_ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-	subprocess.call(['rm '+API_layer_mode+'_l2_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-	subprocess.call(['rm '+API_layer_mode+'_l2_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-	subprocess.call(['rm '+API_layer_mode+'_l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
+	subprocess.call(['rm '+API_layer_mode+'_ip_all_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt'], shell=True)
+	subprocess.call(['rm '+API_layer_mode+'_ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt'], shell=True)
+	subprocess.call(['rm '+API_layer_mode+'_ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt'], shell=True)
+	subprocess.call(['rm '+API_layer_mode+'_l2_all_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt'], shell=True)
+	subprocess.call(['rm '+API_layer_mode+'_l2_mean_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt'], shell=True)
+	subprocess.call(['rm '+API_layer_mode+'_l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt'], shell=True)
 
 	os.chdir("../")
 	path_vec.append(os.getcwd()+'/posix_'+API_layer_mode);
@@ -67,17 +75,20 @@ if API_layer_mode =='udp' or API_layer_mode =='ip':
 	path_vec.append(os.getcwd()+'/plain_'+API_layer_mode);
 	os.chdir("py_save_all_txt/")
 
-	text_files = [open( API_layer_mode+ '_l2_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open(API_layer_mode+ '_l2_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), 
-				open(API_layer_mode+ '_l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open(API_layer_mode+ '_ip_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), 
-				open(API_layer_mode+ '_ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open(API_layer_mode+ '_ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a")];
+	text_files = [open( API_layer_mode+ '_l2_all_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open(API_layer_mode+ '_l2_mean_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open(API_layer_mode+ '_l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open(API_layer_mode+ '_ip_all_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open(API_layer_mode+ '_ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open(API_layer_mode+ '_ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a")];
 
 if API_layer_mode =='both':
-	subprocess.call(['rm *ip_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-	subprocess.call(['rm *ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-	subprocess.call(['rm *ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-	subprocess.call(['rm *l2_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-	subprocess.call(['rm *l2_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
-	subprocess.call(['rm *l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt'], shell=True)
+	subprocess.call(['rm *ip_all_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt'], shell=True)
+	subprocess.call(['rm *ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt'], shell=True)
+	subprocess.call(['rm *ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt'], shell=True)
+	subprocess.call(['rm *l2_all_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt'], shell=True)
+	subprocess.call(['rm *l2_mean_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt'], shell=True)
+	subprocess.call(['rm *l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt'], shell=True)
 
 	os.chdir("../")
 	path_vec.append(os.getcwd()+'/posix_udp');
@@ -88,12 +99,18 @@ if API_layer_mode =='both':
 	path_vec.append(os.getcwd()+'/plain_ip');
 	os.chdir("py_save_all_txt/")
 
-	text_files = [open('udp_l2_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open('udp_l2_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), 
-				open('udp_l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open('udp_ip_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), 
-				open('udp_ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open('udp_ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"),
-				open('ip_l2_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open('ip_l2_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), 
-				open('ip_l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open('ip_ip_all_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), 
-				open('ip_ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a"), open('ip_ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+'.txt', "a")];
+	text_files = [open('udp_l2_all_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open('udp_l2_mean_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open('udp_l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open('udp_ip_all_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open('udp_ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open('udp_ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"),
+				open('ip_l2_all_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open('ip_l2_mean_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open('ip_l2_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open('ip_ip_all_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open('ip_ip_mean_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a"), 
+				open('ip_ip_mean_inc_'+str(NUM_PACKETS)+'_'+BOARD+NAME_STRING_ADD+'.txt', "a")];
 
 
 
@@ -109,7 +126,6 @@ if BOARD == 'native':
 	native_elf_vec.append(os.getcwd()+"/plain_ip/bin/native/plain_ip.elf");
 else:
 	if BOARD=='iotlab-m3':
-		# Open serial port
 		port = serial.Serial(
 			port='/dev/ttyUSB1',
 			baudrate=500000, 
@@ -123,6 +139,32 @@ else:
 			dsrdtr=0, 
 			rtscts=0
 		)
+	# ATTENTION: ALL THESE BOARDS HAVE BEEN TETED WITH EXTERNAL UART CONVERTERS
+	if BOARD=='nucleo-l1':
+		# Open serial port
+		port = serial.Serial(
+			port='/dev/ttyUSB0',
+			baudrate=115200, 
+			dsrdtr=0, 
+			rtscts=0
+		)
+	if BOARD=='stm32f4discovery':
+		# Open serial port
+		port = serial.Serial(
+			port='/dev/ttyUSB0',
+			baudrate=115200, 
+			dsrdtr=0, 
+			rtscts=0
+		)
+	if BOARD=='arduino-due':
+		# Open serial port
+		port = serial.Serial(
+			port='/dev/ttyUSB0',
+			baudrate=115200, 
+			dsrdtr=0, 
+			rtscts=0
+		)
+
 	port.setDTR(0)
 	port.setRTS(0)
 
@@ -141,7 +183,7 @@ else:
 
 in_run = False
 
-loopback_mode_vec = [0, 1]; # 0 = l2 loopback 1: ipv6 loopback
+loopback_mode_vec = [0, 1]#, 1]; # 0 = l2 loopback 1: ipv6 loopback ##############################################################
 print_loopback_mode = ['l2 reflector', 'ip loopback'];
 measure_mean_vec = [0, 1, 2];
 print_mean_mode = ['single', 'conjoint', 'increment'];
@@ -150,7 +192,7 @@ number_of_measurements = len(loopback_mode_vec) * len(measure_mean_vec) * len(pa
 measurements_counter = 0;
 
 for k in range(0,len(loopback_mode_vec)): # loopback modes ip and l2
-	for y in range(0,3): # kinds of measurement regarding mean calculation
+	for y in range(0,len(measure_mean_vec)): # kinds of measurement regarding mean calculation
 
 		MEASURE_MEAN = measure_mean_vec[y]; # 0: Measure each packet and save value
 											# 1: Measure all packets and save value
@@ -167,6 +209,7 @@ for k in range(0,len(loopback_mode_vec)): # loopback modes ip and l2
 		for x in range(0,len(path_vec)): # measureing posix, conn and plain for udp and/or IP APIs
 
 			measurements_counter+=1
+
 			print '### Starting measurement ' +str(measurements_counter)+ ' of ' +str(number_of_measurements)+ ' ###'
 
 			if ( API_layer_mode == 'both' and (len(path_vec)/2)-1 < x):
@@ -190,9 +233,13 @@ for k in range(0,len(loopback_mode_vec)): # loopback modes ip and l2
 				# Flash to MCU by interactiong with shell
 				subprocess.call(['make flash'], env=myenv, shell=True)
 
+				string = print_loopback_mode[k]+' '+print_mean_mode[y]+' '+path_vec[x]+'\n'
+				print string
+
 			while(1):
 				if BOARD != 'native':
 					c = port.readline().strip()
+					print c
 				else:
 					c = myproc.stdout.readline().strip()
 
@@ -201,12 +248,13 @@ for k in range(0,len(loopback_mode_vec)): # loopback modes ip and l2
 					text_files[(y +(k*3))+switch_API_udp_ip].write(c+'\n')
 
 				if c == 'START':
+					print 'START identified'
 					in_run = True
 					#string = print_loopback_mode[k]+' '+print_mean_mode[y]+' '+path_vec[x]+'\n'
 					#text_files[(y +(k*3))+switch_API_udp_ip].write(string) #
 
 				if c == 'DONE':
-					print 'Finished run'
+					print 'DONE identified'
 					in_run = False
 					text_files[(y +(k*3))+switch_API_udp_ip].write('\n')
 					break
