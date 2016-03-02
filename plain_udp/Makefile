@@ -10,7 +10,7 @@ RIOTBASE ?= $(CURDIR)/../../RIOT
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
 # development process:
-#CFLAGS += -DDEVELHELP
+CFLAGS += -DDEVELHELP
 #CFLAGS += -DTEST_SUITES
 #CFLAGS += -DSCHEDSTATISTICS
 
@@ -35,7 +35,7 @@ USEMODULE += l2_reflector
 #USEMODULE += at86rf231
 
 #USEMODULE += od
-#USEMODULE += ps
+USEMODULE += ps
 
 include $(RIOTBASE)/Makefile.include
 
