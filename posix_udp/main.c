@@ -39,67 +39,21 @@
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
 
-#ifndef NUM_PACKETS
-#define NUM_PACKETS         (1000)
+#ifndef PACKET_SIZE
+#define PACKET_SIZE     (10)
 #endif
-#ifndef MIN_PACKET_SIZE
-#define MIN_PACKET_SIZE     (10)
-#endif
-#ifndef MAX_PACKET_SIZE
-#define MAX_PACKET_SIZE     (1211)
-#endif
-#ifndef STEP_SIZE
-#define STEP_SIZE           (10)
-#endif
-#ifndef DELAY_PACKET_US
-#define DELAY_PACKET_US     (0)
-#endif
-#ifndef DELAY_SIZE_US
-#define DELAY_SIZE_US       (0)
-#endif
-#ifndef MEASURE_MEAN
-#define MEASURE_MEAN       (2)
-#endif
-
-#define DONT_PRINT_DATA     (0)
-
 
 #define UDP_PORT                            (9)
 
 #define SERVER_MSG_QUEUE_SIZE               (8)
 
-#define SERVER_BUFFER_SIZE                  (MAX_PACKET_SIZE)
-
 #define SC_NETIF_IPV6_DEFAULT_PREFIX_LEN    (64)
 
 /* Server */
 static int server_socket = -1;
-static char server_buffer[SERVER_BUFFER_SIZE];
+static char server_buffer[PACKET_SIZE];
 static char server_stack[THREAD_STACKSIZE_DEFAULT];
 static msg_t server_msg_queue[SERVER_MSG_QUEUE_SIZE];
-
-/* Measurement stuff MEAN_MODE = 0: Measure each packet and save value
- *                             = 1: Measure all packets and save value
- *                             = 2: Measure each packet but increment all
- */
-#if MEASURE_MEAN == 0
-static uint32_t buffer_measurement[NUM_PACKETS];
-
-#elif MEASURE_MEAN == 1
-#define BUFFER_SIZE ((MAX_PACKET_SIZE - MIN_PACKET_SIZE) / STEP_SIZE)+1
-static uint32_t buffer_measurement[BUFFER_SIZE];
-static int packet_counter = 0;
-
-#elif MEASURE_MEAN == 2
-#define BUFFER_SIZE ((MAX_PACKET_SIZE - MIN_PACKET_SIZE) / STEP_SIZE)+1
-static uint32_t buffer_measurement[BUFFER_SIZE];
-static int packet_counter = 0;
-static uint32_t mean_increment = 0;
-static int measure_num = 0;
-#endif
-
-static uint32_t start_time = 0;
-static int static_idx = -1;
 
 static void *_server_thread(void *args)
 {
@@ -135,30 +89,6 @@ static void *_server_thread(void *args)
             DEBUG("Peer did shut down\n");
         }
         else {
-#if MEASURE_MEAN == 0 
-                buffer_measurement[static_idx] = xtimer_now() - start_time;
-                start_time = 0;
-
-#elif MEASURE_MEAN == 1
-                packet_counter++;
-                if (packet_counter == NUM_PACKETS) {
-                    buffer_measurement[static_idx] = xtimer_now() - start_time;
-                    start_time = 0;
-                    packet_counter = 0;
-                    DEBUG("Wrote %ist buffer val\n", static_idx);
-                }
-
-#elif MEASURE_MEAN == 2
-                packet_counter++;
-                /* compute mean value during runtime*/
-                mean_increment = mean_increment + (xtimer_now() - start_time);
-                start_time = 0;
-                if (packet_counter == NUM_PACKETS) {
-                    buffer_measurement[measure_num++] = mean_increment;
-                    packet_counter = 0;
-                    mean_increment = 0;
-                }
-#endif
             DEBUG("Received data of size: %i\n", res);
             //puts(server_buffer);
         }
@@ -186,12 +116,9 @@ static int udp_start_server(void)
     return 0;
 }
 
+static char data[PACKET_SIZE];
 int main(void)
 {
-    DEBUG("%i iterations for packets with payloads %i:%i:%i\n ", NUM_PACKETS, MIN_PACKET_SIZE, STEP_SIZE, MAX_PACKET_SIZE);
-    DEBUG("Delay between to sizes: %i us; Delay between two packets: %i us\n", DELAY_SIZE_US, DELAY_PACKET_US);
-    DEBUG("posix_udp; MEASURE_MEAN: %i , LOOPBACK_MODE: %i\n",MEASURE_MEAN, LOOPBACK_MODE);
-    
     udp_start_server();
 
     struct sockaddr_in6 dst;// src;
@@ -200,10 +127,8 @@ int main(void)
 
     //src.sin6_family = AF_INET6;
     dst.sin6_family = AF_INET6;
-    
 
-    char data[MAX_PACKET_SIZE];
-    for (int i = 0; i < MAX_PACKET_SIZE; i++) {
+    for (int i = 0; i < PACKET_SIZE; i++) {
         data[i] = i;
     }
 
@@ -218,7 +143,6 @@ int main(void)
     gnrc_ipv6_nc_t *nc_entry = NULL;
 
     /* set global unicast SOURCE  address */
-    //char addr_str[] = "fe80::3432:4833:46d9:8a13";
     char addr_str[]= "2001:cafe:0000:0002:0222:64af:126b:8a14";
 
     gnrc_netif_get(ifs);
@@ -237,12 +161,9 @@ int main(void)
 
     /* set global unicast DESTINATION  address */
     char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a14";
-    //char dst_addr_str[] = "fe80::3432:4833:46d9:8a13";
 
     /* set hhardware address of receiver */
-    //uint8_t hwaddr[2] = {0x8a, 0x14};
     uint8_t hwaddr[8] = {0x10, 0x22, 0x64, 0xaf, 0x12, 0x6b, 0x8a, 0x14};
-    //int8_t hwaddr[8] = {0x5a, 0x5a, 0x50, 0x6b, 0x51, 0x7e, 0x00, 0xd2};
 
     if (ipv6_addr_from_str(&dest_addr, dst_addr_str) == NULL) {
         DEBUG("error: unable to parse IPv6 address.");
@@ -281,7 +202,8 @@ int main(void)
     if (ipv6_addr_from_str(&dest_addr, dst_addr_str) == NULL) {
         DEBUG("error: unable to parse IPv6 address.");
         return 1;
-    }*/
+    }
+*/
     /* parse destination address */
     if (inet_pton(AF_INET6, dst_addr_str, &dst.sin6_addr) != 1) {
         DEBUG("Error: unable to parse destination address");
@@ -300,47 +222,9 @@ int main(void)
         return 1;
     }
 
-    puts("START");
+    sendto(s, &data, PACKET_SIZE, 0, (struct sockaddr *)&dst, sizeof(dst));
 
-    for(unsigned int j = MIN_PACKET_SIZE; j < MAX_PACKET_SIZE; j+=STEP_SIZE) {
-#if MEASURE_MEAN == 1
-        DEBUG("Packet size: %i and static_idx= %i\n", j, static_idx);
-        static_idx++;
-        start_time = xtimer_now();
-#endif
-        for (unsigned int i = 0; i < NUM_PACKETS; i++) {
-#if MEASURE_MEAN == 0 || MEASURE_MEAN == 2
-            static_idx++;
-            start_time = xtimer_now();
-#endif
-            DEBUG("Before sendto %" PRIu32"\n", start_time);
-            sendto(s, &data, j, 0, (struct sockaddr *)&dst, sizeof(dst));
-            DEBUG("After sendto\n");
-#if DELAY_PACKET_US
-        xtimer_usleep(DELAY_PACKET_US);
-#endif
-        }
-#if !DONT_PRINT_DATA && !MEASURE_MEAN 
-        /* Print measurement array to standard out */
-        for(unsigned int i = 0; i < NUM_PACKETS; i++){
-            static_idx = -1;
-            printf(" %" PRIu32, buffer_measurement[i]);
-        }
-        puts("");
-#endif
-#if DELAY_SIZE_US
-        xtimer_usleep(DELAY_SIZE_US);
-#endif
-    }
-#if !DONT_PRINT_DATA && MEASURE_MEAN
-        /* Print measurement array to standard out */
-        for(unsigned int i = 0; i < BUFFER_SIZE; i++){
-            printf(" %" PRIu32, buffer_measurement[i]);
-        }
-        puts("");
-#endif /* !DONT_PRINT_DATA && MEASURE_MEAN */
-    close(s);
-    puts("DONE");
+    puts("end");
 
     return 0;
 }

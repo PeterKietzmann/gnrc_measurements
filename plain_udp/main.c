@@ -29,13 +29,12 @@
 #include "net/gnrc/ipv6/nc.h"
 #include "kernel_types.h"
 #include "thread.h"
-#include "ps.h"
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
 
 #ifndef PACKET_SIZE
-#define PACKET_SIZE     (1211)
+#define PACKET_SIZE     (100)
 #endif
 
 #define UDP_PORT                            (9)
@@ -104,10 +103,6 @@ static char data[PACKET_SIZE];
 
 int main(void)
 {
-    DEBUG("%i iterations for packets with payloads %i:%i:%i\n ", NUM_PACKETS, MIN_PACKET_SIZE, STEP_SIZE, MAX_PACKET_SIZE);
-    DEBUG("Delay between to sizes: %i us; Delay between two packets: %i us\n", DELAY_SIZE_US, DELAY_PACKET_US);
-    DEBUG("plain_udp; MEASURE_MEAN: %i , LOOPBACK_MODE: %i\n",MEASURE_MEAN, LOOPBACK_MODE);
-
     udp_start_server();
 
     for (int i = 0; i < PACKET_SIZE; i++) {
@@ -200,8 +195,7 @@ int main(void)
 
     gnrc_netapi_send(sendto->pid, ip);
 
-    printf("Payload:%i Bytes\n", PACKET_SIZE);
-    ps();
+    puts("end");
 
     return 0;
 }

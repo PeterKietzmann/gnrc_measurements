@@ -35,7 +35,7 @@ USEMODULE += l2_reflector
 #USEMODULE += at86rf231
 
 #USEMODULE += od
-USEMODULE += ps
+#USEMODULE += ps
 
 include $(RIOTBASE)/Makefile.include
 
