@@ -20,19 +20,18 @@ USEMODULE += gnrc_ipv6_default
 USEMODULE += gnrc_ipv6_router_default
 USEMODULE += gnrc_conn_ip
 #USEMODULE += gnrc_udp
-USEMODULE += gnrc_sixlowpan_iphc
-USEMODULE += gnrc_sixlowpan_frag
-
-USEMODULE += gnrc_nomac
-USEMODULE += l2_reflector
-#USEMODULE += at86rf231
-
-#USEMODULE += ps
+ifneq (1, $(LOOPBACK_MODE))
+	USEMODULE += gnrc_nomac
+	USEMODULE += l2_reflector
+	USEMODULE += gnrc_sixlowpan_iphc
+	USEMODULE += gnrc_sixlowpan_frag
+endif
+USEMODULE += ps
 
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
 # development process:
-#CFLAGS += -DDEVELHELP
+CFLAGS += -DDEVELHELP
 
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1

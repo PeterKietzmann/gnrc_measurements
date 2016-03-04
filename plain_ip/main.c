@@ -28,6 +28,7 @@
 #include "net/gnrc/ipv6/nc.h"
 #include "kernel_types.h"
 #include "thread.h"
+#include "ps.h"
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
@@ -184,8 +185,9 @@ int main(void)
                                  GNRC_NETREG_DEMUX_CTX_ALL) - 1);
 
     gnrc_netapi_send(sendto->pid, ip);
-
-    puts("end");
+    puts("START");
+    ps();
+    puts("DONE");
 
     return 0;
 }

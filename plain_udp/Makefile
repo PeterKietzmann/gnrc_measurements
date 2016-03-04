@@ -27,15 +27,17 @@ USEMODULE += gnrc_ipv6_router_default
 #USEMODULE += gnrc_ipv6 gnrc_icmpv6
 
 USEMODULE += gnrc_udp
-USEMODULE += gnrc_sixlowpan_iphc
-USEMODULE += gnrc_sixlowpan_frag
-
-USEMODULE += gnrc_nomac
-USEMODULE += l2_reflector
-#USEMODULE += at86rf231
+ifneq (1, $(LOOPBACK_MODE))
+	USEMODULE += gnrc_nomac
+	USEMODULE += l2_reflector
+	USEMODULE += gnrc_sixlowpan_iphc
+	USEMODULE += gnrc_sixlowpan_frag
+endif
 
 #USEMODULE += od
-#USEMODULE += ps
+USEMODULE += ps
+
+CFLAGS += -DDEVELHELP
 
 include $(RIOTBASE)/Makefile.include
 

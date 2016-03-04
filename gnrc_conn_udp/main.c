@@ -37,6 +37,8 @@
 
 #include "thread.h"
 
+#include "ps.h"
+
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
 
@@ -188,8 +190,9 @@ int main(void)
 
     conn_udp_sendto(&data, PACKET_SIZE, NULL, 0,(struct sockaddr *)&dest_addr, sizeof(dest_addr), 
         AF_INET6, UDP_PORT, UDP_PORT);
-    
-    puts("end");
+    puts("START");
+    ps();
+    puts("DONE");
 
     return 0;
 }

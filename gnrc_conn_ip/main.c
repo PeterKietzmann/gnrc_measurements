@@ -35,6 +35,8 @@
 
 #include "thread.h"
 
+#include "ps.h"
+
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
 
@@ -179,11 +181,11 @@ int main(void)
     gnrc_netapi_set(ifs[0], NETOPT_RETRANS, 0, &num_retrans,
                             sizeof(num_retrans));
 */
-
+    puts("START");
     conn_ip_sendto(&data, PACKET_SIZE, NULL, 0,(struct sockaddr *)&dest_addr, sizeof(dest_addr), 
                 AF_INET6, GNRC_NETTYPE_UNDEF);
-
-    puts("end");
+    ps();
+    puts("DONE");
 
     return 0;
 }

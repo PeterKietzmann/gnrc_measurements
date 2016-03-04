@@ -36,6 +36,8 @@
 
 #include "thread.h"
 
+#include "ps.h"
+
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
 
@@ -223,8 +225,9 @@ int main(void)
     }
 
     sendto(s, &data, PACKET_SIZE, 0, (struct sockaddr *)&dst, sizeof(dst));
-
-    puts("end");
+    puts("START");
+    ps();
+    puts("DONE");
 
     return 0;
 }
