@@ -22,14 +22,12 @@ USEMODULE += gnrc_ipv6_router_default
 USEMODULE += gnrc_conn_ip
 USEMODULE += posix_sockets
 #USEMODULE += gnrc_udp
-USEMODULE += gnrc_sixlowpan_iphc
-USEMODULE += gnrc_sixlowpan_frag
-
-USEMODULE += gnrc_nomac
-USEMODULE += l2_reflector
-#USEMODULE += at86rf231
-
-USEMODULE += prng_minstd
+ifneq (1, $(LOOPBACK_MODE))
+	USEMODULE += gnrc_nomac
+	USEMODULE += l2_reflector
+	USEMODULE += gnrc_sixlowpan_iphc
+	USEMODULE += gnrc_sixlowpan_frag
+endif
 
 #USEMODULE += ps
 
