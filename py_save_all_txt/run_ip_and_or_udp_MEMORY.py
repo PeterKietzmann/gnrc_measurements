@@ -90,7 +90,7 @@ if BOARD == 'native':
 
 in_run = False
 
-loopback_mode_vec = [0, 1]#, 1]; # 0 = l2 loopback 1: ipv6 loopback 
+loopback_mode_vec = [0, 1]; # 0 = l2 loopback 1: ipv6 loopback
 loopback_mode_vec_str=['L2 Reflector', 'IP Loopback'];
 
 payload_vec = np.arange(10, 1211, 10);
@@ -116,8 +116,8 @@ for k in range(0,len(loopback_mode_vec)): # loopback modes ip and l2
 		# Make a copy of the environment and modify that.
 		myenv = dict(os.environ) 
 		myenv["CFLAGS"] = ('-DPACKET_SIZE='+str(payload_vec[y])+' -DLOOPBACK_MODE='+str(loopback_mode_vec[k]));
-
-		myenv["BOARD"] = BOARD
+		myenv["BOARD"] = BOARD;
+		myenv["LOOPBACK_MODE"] = str(loopback_mode_vec[k]);
 
 		for x in range(0,len(path_vec)): # measureing posix, conn and plain for udp and/or IP APIs
 
