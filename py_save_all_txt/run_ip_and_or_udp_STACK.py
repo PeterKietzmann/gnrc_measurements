@@ -40,9 +40,9 @@ os.chdir("../")
 path_vec.append(os.getcwd()+'/posix_udp');
 path_vec.append(os.getcwd()+'/gnrc_conn_udp');
 path_vec.append(os.getcwd()+'/plain_udp');
-# path_vec.append(os.getcwd()+'/posix_ip');
-# path_vec.append(os.getcwd()+'/gnrc_conn_ip');
-# path_vec.append(os.getcwd()+'/plain_ip');
+path_vec.append(os.getcwd()+'/posix_ip');
+path_vec.append(os.getcwd()+'/gnrc_conn_ip');
+path_vec.append(os.getcwd()+'/plain_ip');
 
 
 os.chdir("py_save_all_txt/")
