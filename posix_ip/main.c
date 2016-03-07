@@ -212,7 +212,7 @@ int main(void)
     }
 
     sendto(s, &data, PACKET_SIZE, 0, (struct sockaddr *)&dst, sizeof(dst));
-
+    puts("START");
     ps();
     puts("DONE");
 
