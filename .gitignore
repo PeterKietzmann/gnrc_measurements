@@ -8,6 +8,7 @@ doc/doxygen/*.log
 doc/doxygen/*.db
 doc/doxygen/*.tmp
 TEMP/*
+elf_files/*
 # Built binaries
 *bin
 # Backup files
