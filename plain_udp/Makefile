@@ -37,7 +37,14 @@ endif
 #USEMODULE += od
 #USEMODULE += ps
 
+IOTLAB_NODES    = 1
+IOTLAB_DURATION = 5
+IOTLAB_PHY_NODES = 94
+IOTLAB_EXP_NAME = $(APPLICATION)
+IOTLAB_PROFILE = power_short
+
 include $(RIOTBASE)/Makefile.include
+include $(RIOTBASE)/dist/testbed-support/Makefile.iotlab
 
 ifneq (,$(LOOPBACK_MODE))
 # 0: L2 reflector mode, 1: IPv6 Loopback mode
