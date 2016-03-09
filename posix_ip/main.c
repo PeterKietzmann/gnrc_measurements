@@ -39,25 +39,16 @@
 #include "debug.h"
 
 #ifndef NUM_PACKETS
-#define NUM_PACKETS         (3)
+#define NUM_PACKETS         (1000)
 #endif
 #ifndef MIN_PACKET_SIZE
 #define MIN_PACKET_SIZE     (10)
 #endif
 #ifndef MAX_PACKET_SIZE
-#define MAX_PACKET_SIZE     (11)
+#define MAX_PACKET_SIZE     (1211)
 #endif
 #ifndef STEP_SIZE
 #define STEP_SIZE           (10)
-#endif
-#ifndef DELAY_PACKET_US
-#define DELAY_PACKET_US     (0)
-#endif
-#ifndef DELAY_SIZE_US
-#define DELAY_SIZE_US       (0)
-#endif
-#ifndef MEASURE_MEAN
-#define MEASURE_MEAN        (2)
 #endif
 
 #define DONT_PRINT_DATA     (0)
@@ -74,28 +65,19 @@ static char server_buffer[SERVER_BUFFER_SIZE];
 static char server_stack[THREAD_STACKSIZE_DEFAULT];
 static msg_t server_msg_queue[SERVER_MSG_QUEUE_SIZE];
 
-/* Measurement stuff MEAN_MODE = 0: Measure each packet and save value
- *                             = 1: Measure all packets and save value
- *                             = 2: Measure each packet but increment all
- */
-#if MEASURE_MEAN == 0
-static uint32_t buffer_measurement[NUM_PACKETS];
-
-#elif MEASURE_MEAN == 1
-#define BUFFER_SIZE ((MAX_PACKET_SIZE - MIN_PACKET_SIZE) / STEP_SIZE)+1
-static uint32_t buffer_measurement[BUFFER_SIZE];
 static int packet_counter = 0;
 
-#elif MEASURE_MEAN == 2
-#define BUFFER_SIZE ((MAX_PACKET_SIZE - MIN_PACKET_SIZE) / STEP_SIZE)+1
-static uint32_t buffer_measurement[BUFFER_SIZE];
-static int packet_counter = 0;
-static uint32_t mean_increment = 0;
-static int measure_num = 0;
-#endif
+void led_pulse(void) {
+    LED_RED_ON;
+    LED_GREEN_ON;
+    LED_ORANGE_ON;
 
-static uint32_t start_time = 0;
-static int static_idx = -1;
+    xtimer_usleep(250000);
+
+    LED_RED_OFF;
+    LED_GREEN_OFF;
+    LED_ORANGE_OFF;
+}
 
 static void *_server_thread(void *args)
 {
@@ -131,38 +113,18 @@ static void *_server_thread(void *args)
             DEBUG("Peer did shut down\n");
         }
         else {
-#if MEASURE_MEAN == 0 
-                buffer_measurement[static_idx] = xtimer_now() - start_time;
-                start_time = 0;
 
-#elif MEASURE_MEAN == 1
                 packet_counter++;
                 if (packet_counter == NUM_PACKETS) {
-                    buffer_measurement[static_idx] = xtimer_now() - start_time;
-                    start_time = 0;
+                    led_pulse();
                     packet_counter = 0;
-                    DEBUG("Wrote %ist buffer val\n", static_idx);
                 }
-
-#elif MEASURE_MEAN == 2
-                packet_counter++;
-                /* compute mean value during runtime*/
-                mean_increment = mean_increment + (xtimer_now() - start_time);
-                start_time = 0;
-                if (packet_counter == NUM_PACKETS) {
-                    buffer_measurement[measure_num++] = mean_increment;
-                    packet_counter = 0;
-                    mean_increment = 0;
-                }
-#endif
-            DEBUG("Received data of size: %i\n", res);
-            //puts(server_buffer);
         }
     }
     return NULL;
 }
 
-static int udp_start_server(void)
+static int ip_start_server(void)
 {
 
     /* check if server is already running */
@@ -180,15 +142,18 @@ static int udp_start_server(void)
     return 0;
 }
 
+static char data[MAX_PACKET_SIZE];
+
 int main(void)
 {
-    DEBUG("%i iterations for packets with payloads %i:%i:%i\n ", NUM_PACKETS, MIN_PACKET_SIZE, STEP_SIZE, MAX_PACKET_SIZE);
-    DEBUG("Delay between to sizes: %i us; Delay between two packets: %i us\n", DELAY_SIZE_US, DELAY_PACKET_US);
-    DEBUG("posix_ip; MEASURE_MEAN: %i , LOOPBACK_MODE: %i\n",MEASURE_MEAN, LOOPBACK_MODE);
+    LED_RED_OFF;
+    LED_GREEN_OFF;
+    LED_ORANGE_OFF;
 
-    udp_start_server();
+    xtimer_usleep(5000000);
 
-    char data[MAX_PACKET_SIZE];
+    ip_start_server();
+
     for (int i = 0; i < MAX_PACKET_SIZE; i++) {
         data[i] = i;
     }
@@ -287,48 +252,14 @@ int main(void)
         DEBUG("error initializing socket");
         return 1;
     }
-
-    puts("START");
-
     for(unsigned int j = MIN_PACKET_SIZE; j < MAX_PACKET_SIZE; j+=STEP_SIZE) {
-#if MEASURE_MEAN == 1
-        DEBUG("Packet size: %i and static_idx= %i\n", j, static_idx);
-        static_idx++;
-        start_time = xtimer_now();
-#endif
-        for (unsigned int i = 0; i < NUM_PACKETS; i++) {
-#if MEASURE_MEAN == 0 || MEASURE_MEAN == 2
-            static_idx++;
-            start_time = xtimer_now();
-#endif
-            DEBUG("Before sendto %" PRIu32"\n", start_time);
-            sendto(s, &data, j, 0, (struct sockaddr *)&dst, sizeof(dst));
-            DEBUG("After sendto\n");
-#if DELAY_PACKET_US
-        xtimer_usleep(DELAY_PACKET_US);
-#endif
-        }
-#if !DONT_PRINT_DATA && !MEASURE_MEAN 
-        /* Print measurement array to standard out */
-        for(unsigned int i = 0; i < NUM_PACKETS; i++){
-            static_idx = -1;
-            printf(" %" PRIu32, buffer_measurement[i]);
-        }
-        puts("");
-#endif
-#if DELAY_SIZE_US
-        xtimer_usleep(DELAY_SIZE_US);
-#endif
-    }
-#if !DONT_PRINT_DATA && MEASURE_MEAN
-        /* Print measurement array to standard out */
-        for(unsigned int i = 0; i < BUFFER_SIZE; i++){
-            printf(" %" PRIu32, buffer_measurement[i]);
-        }
-        puts("");
-#endif /* !DONT_PRINT_DATA && MEASURE_MEAN */
-    close(s);
-    puts("DONE");
+    
+        led_pulse();
 
+        for (unsigned int i = 0; i < NUM_PACKETS; i++) {
+
+            sendto(s, &data, j, 0, (struct sockaddr *)&dst, sizeof(dst));
+        }
+    }
     return 0;
 }
