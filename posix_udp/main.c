@@ -40,7 +40,7 @@
 #include "debug.h"
 
 #ifndef NUM_PACKETS
-#define NUM_PACKETS         (1000)
+#define NUM_PACKETS         (1010)
 #endif
 #ifndef MIN_PACKET_SIZE
 #define MIN_PACKET_SIZE     (10)
@@ -53,7 +53,7 @@
 #endif
 
 
-#define UDP_PORT                            (9)
+#define UDP_PORT                            (6414)
 
 #define SERVER_MSG_QUEUE_SIZE               (8)
 
@@ -198,13 +198,14 @@ int main(void)
     }
 
     /* set global unicast DESTINATION  address */
-    char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a14";
+    char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a15";
     //char dst_addr_str[] = "fe80::3432:4833:46d9:8a13";
 
     /* set hhardware address of receiver */
     //uint8_t hwaddr[2] = {0x8a, 0x14};
-    uint8_t hwaddr[8] = {0x10, 0x22, 0x64, 0xaf, 0x12, 0x6b, 0x8a, 0x14};
-    //int8_t hwaddr[8] = {0x5a, 0x5a, 0x50, 0x6b, 0x51, 0x7e, 0x00, 0xd2};
+    //uint8_t hwaddr[8] = {0x10, 0x22, 0x64, 0xaf, 0x12, 0x6b, 0x8a, 0x15};
+    int8_t hwaddr[8] = {0x5e, 0x54, 0x80, 0x1e, 0xfb, 0x45, 0xa1, 0x8a};
+
 
     if (ipv6_addr_from_str(&dest_addr, dst_addr_str) == NULL) {
         DEBUG("error: unable to parse IPv6 address.");
@@ -264,14 +265,13 @@ int main(void)
 
     for(unsigned int j = MIN_PACKET_SIZE; j < MAX_PACKET_SIZE; j+=STEP_SIZE) {
 
-        led_pulse();
 
         for (unsigned int i = 0; i < NUM_PACKETS; i++) {
-
             sendto(s, &data, j, 0, (struct sockaddr *)&dst, sizeof(dst));
 
         }
     }
+    puts("DONE");
 
     return 0;
 }
