@@ -29,7 +29,8 @@ USEMODULE += gnrc_ipv6_router_default
 USEMODULE += gnrc_udp
 ifneq (1, $(LOOPBACK_MODE))
 	USEMODULE += gnrc_nomac
-	USEMODULE += l2_reflector
+	#USEMODULE += l2_reflector
+	USEMODULE += gnrc_netif_default
 	USEMODULE += gnrc_sixlowpan_iphc
 	USEMODULE += gnrc_sixlowpan_frag
 endif

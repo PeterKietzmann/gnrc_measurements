@@ -36,7 +36,7 @@
 #include "debug.h"
 
 #ifndef NUM_PACKETS
-#define NUM_PACKETS         (1000)
+#define NUM_PACKETS         (1010)
 #endif
 #ifndef MIN_PACKET_SIZE
 #define MIN_PACKET_SIZE     (10)
@@ -50,7 +50,7 @@
 
 #define DONT_PRINT_DATA     (0)
 
-#define UDP_PORT                            (9)
+#define UDP_PORT                            (6414)
 
 #define SERVER_MSG_QUEUE_SIZE               (8)
 
@@ -145,8 +145,8 @@ int main(void)
     }
 
     uint8_t port[2];
-    port[0] = UDP_PORT;
-    port[1] = 0;
+    port[0] = (uint8_t)UDP_PORT;
+    port[1] = (uint8_t)(UDP_PORT >> 8);
 
     gnrc_pktsnip_t *payload, *udp, *ip;
     gnrc_netreg_entry_t *sendto;
@@ -175,12 +175,12 @@ int main(void)
     }
 
     /* set global unicast DESTINATION  address */
-    char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a14";
+    char dst_addr_str[] = "2001:cafe:0000:0002:0222:64af:126b:8a15";
     //char dst_addr_str[] = "fe80::3432:4833:46d9:8a13";
 
     /* set hhardware address of receiver */
     //uint8_t hwaddr[2] = {0x8a, 0x14};
-    uint8_t hwaddr[8] = {0x10, 0x22, 0x64, 0xaf, 0x12, 0x6b, 0x8a, 0x14};
+    uint8_t hwaddr[8] = {0xce, 0x3d, 0xe8, 0x5a, 0x0a, 0x4d, 0x7b, 0xd8};
     //int8_t hwaddr[8] = {0x5a, 0x5a, 0x50, 0x6b, 0x51, 0x7e, 0x00, 0xd2};
 
 
@@ -225,8 +225,6 @@ int main(void)
 
     for(unsigned int j = MIN_PACKET_SIZE; j < MAX_PACKET_SIZE; j+=STEP_SIZE) {
     
-        led_pulse();
-
         for (unsigned int i = 0; i < NUM_PACKETS; i++) {
 
             payload = gnrc_pktbuf_add(NULL, &data[0], j, GNRC_NETTYPE_UNDEF);
@@ -244,6 +242,6 @@ int main(void)
 
         }
     }
-
+    puts("DONE");
     return 0;
 }
