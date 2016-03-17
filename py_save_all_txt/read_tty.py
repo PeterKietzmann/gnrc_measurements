@@ -11,23 +11,16 @@ from pexpect import spawn, TIMEOUT, EOF
 #BOARD='nucleo-l1';
 #BOARD='arduino-due';
 BOARD='iotlab-m3';
-if BOARD == 'native':
-	board_switch = 0
-else:
-	board_switch = 1
 
 
 ###################### xxxxxxxxxxxxxx ######################
 
 
 
-subprocess.call(['rm read_tty.txt'], shell=True)
+subprocess.call(['rm read_tty2.txt'], shell=True)
 
-os.chdir("../")
-path_vec = (os.getcwd()+'/plain_ip'); ########## here #################
-os.chdir("py_save_all_txt/")
 
-text_files = open( 'read_tty.txt', "a");
+text_files = open( 'read_tty2.txt', "a");
 
 os.chdir("../")
 
