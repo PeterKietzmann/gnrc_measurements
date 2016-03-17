@@ -36,7 +36,7 @@
 #include "debug.h"
 
 #ifndef NUM_PACKETS
-#define NUM_PACKETS         (1010)
+#define NUM_PACKETS         (1001)
 #endif
 #ifndef MIN_PACKET_SIZE
 #define MIN_PACKET_SIZE     (10)
@@ -65,6 +65,9 @@ static msg_t server_msg_queue[SERVER_MSG_QUEUE_SIZE];
 static gnrc_netreg_entry_t server = {NULL, GNRC_NETREG_DEMUX_CTX_ALL,
                                    KERNEL_PID_UNDEF};
 
+#define BUFFER_SIZE NUM_PACKETS
+static uint32_t buffer_measurement[BUFFER_SIZE];
+static int static_idx = 0;
 
 void led_pulse(void) {
     LED_RED_ON;
@@ -135,6 +138,7 @@ static int udp_start_server(void)
 static char data[MAX_PACKET_SIZE];
 int main(void)
 {
+
     LED_RED_OFF;
     LED_GREEN_OFF;
     LED_ORANGE_OFF;
@@ -216,15 +220,19 @@ int main(void)
     }
 #endif
 
-/*
+
     // Disable retrans of transceiver, just for debug 
     uint8_t num_retrans = 0;
     gnrc_netapi_set(ifs[0], NETOPT_RETRANS, 0, &num_retrans,
                             sizeof(num_retrans));
-*/
 
+
+
+    xtimer_usleep(10000);
+    puts("START");
+    xtimer_usleep(10000);
     for(unsigned int j = MIN_PACKET_SIZE; j < MAX_PACKET_SIZE; j+=STEP_SIZE) {
-    
+
         for (unsigned int i = 0; i < NUM_PACKETS; i++) {
 
             payload = gnrc_pktbuf_add(NULL, &data[0], j, GNRC_NETTYPE_UNDEF);
@@ -239,6 +247,15 @@ int main(void)
                                          GNRC_NETREG_DEMUX_CTX_ALL) - 1);
 
             gnrc_netapi_send(sendto->pid, ip);
+
+            buffer_measurement[static_idx++] = xtimer_now();
+            if(static_idx == BUFFER_SIZE){
+                static_idx=0;
+                for(unsigned int k = 0; k < BUFFER_SIZE; k++){
+                    printf(" %" PRIu32, buffer_measurement[k]);
+                }
+                puts("");
+            }
 
         }
     }
