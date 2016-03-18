@@ -221,11 +221,25 @@ int main(void)
 #endif
 
 
-    // Disable retrans of transceiver, just for debug 
+    // Disable retrans of transceiver
     uint8_t num_retrans = 0;
     gnrc_netapi_set(ifs[0], NETOPT_RETRANS, 0, &num_retrans,
                             sizeof(num_retrans));
 
+    // Disable AUTOACK
+    uint8_t autoack = 0;
+    gnrc_netapi_set(ifs[0], NETOPT_AUTOACK, 0, &autoack,
+                            sizeof(autoack));
+
+    // Disable CSMA
+    uint8_t csma = 0;
+    gnrc_netapi_set(ifs[0], NETOPT_CSMA, 0, &csma,
+                            sizeof(csma));
+
+    // switch to other channel
+    uint8_t channel = 11;
+    gnrc_netapi_set(ifs[0], NETOPT_CHANNEL, 0, &channel,
+                            sizeof(channel));
 
 
     xtimer_usleep(10000);
