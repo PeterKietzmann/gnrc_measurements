@@ -61,6 +61,9 @@
 #define MEASURE_MEAN       (2)
 #endif
 
+#define AVERAGE_X_TIME_VALUES   (100)
+
+
 #define DONT_PRINT_DATA     (0)
 
 
@@ -84,6 +87,9 @@ static msg_t server_msg_queue[SERVER_MSG_QUEUE_SIZE];
  */
 #if MEASURE_MEAN == 0
 static uint32_t buffer_measurement[NUM_PACKETS];
+static int packet_counter = 0;
+static int measure_counter=0;
+static bool start_measure=false;
 
 #elif MEASURE_MEAN == 1
 #define BUFFER_SIZE ((MAX_PACKET_SIZE - MIN_PACKET_SIZE) / STEP_SIZE)+1
@@ -134,13 +140,16 @@ static void *_server_thread(void *args)
         else if (res == 0) {
             DEBUG("Peer did shut down\n");
         }
-        else {
+        else if (start_measure==true){
 #if MEASURE_MEAN == 0 
-                buffer_measurement[static_idx] = xtimer_now() - start_time;
+            packet_counter++;
+            if (packet_counter%AVERAGE_X_TIME_VALUES == 0) {
+                buffer_measurement[measure_counter++] = xtimer_now() - start_time;
+                packet_counter=0;
                 start_time = 0;
+            }
 
 #elif MEASURE_MEAN == 1
-                packet_counter++;
                 if (packet_counter == NUM_PACKETS) {
                     buffer_measurement[static_idx] = xtimer_now() - start_time;
                     start_time = 0;
@@ -300,7 +309,14 @@ int main(void)
         return 1;
     }
 
+    
+    for (unsigned int i = 0; i < (NUM_PACKETS*2); i++) {
+        sendto(s, &data, 100, 0, (struct sockaddr *)&dst, sizeof(dst));
+    }
+    start_measure=true;
+
     puts("START");
+
 
     for(unsigned int j = MIN_PACKET_SIZE; j < MAX_PACKET_SIZE; j+=STEP_SIZE) {
 #if MEASURE_MEAN == 1
@@ -311,7 +327,9 @@ int main(void)
         for (unsigned int i = 0; i < NUM_PACKETS; i++) {
 #if MEASURE_MEAN == 0 || MEASURE_MEAN == 2
             static_idx++;
-            start_time = xtimer_now();
+            if (i%AVERAGE_X_TIME_VALUES==0){
+                start_time = xtimer_now();
+            }
 #endif
             DEBUG("Before sendto %" PRIu32"\n", start_time);
             sendto(s, &data, j, 0, (struct sockaddr *)&dst, sizeof(dst));
@@ -322,8 +340,9 @@ int main(void)
         }
 #if !DONT_PRINT_DATA && !MEASURE_MEAN 
         /* Print measurement array to standard out */
-        for(unsigned int i = 0; i < NUM_PACKETS; i++){
+        for(unsigned int i = 0; i < AVERAGE_X_TIME_VALUES; i++){
             static_idx = -1;
+            measure_counter=0;
             printf(" %" PRIu32, buffer_measurement[i]);
         }
         puts("");
